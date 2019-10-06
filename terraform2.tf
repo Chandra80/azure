@@ -8,11 +8,11 @@ provider "azurerm" {
 
 #define variable 
 variable "prefix" {
-  default = "4-azure-demo"
+  default = "2azuredemo"
 }
 # Create a resource group if it doesn’t exist
 resource "azurerm_resource_group" "main" {
-  name     = "Resource-Group-1"
+  name     = "AzureDemoOct19"
   location = "West US 2"
 }
 
