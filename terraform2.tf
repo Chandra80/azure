@@ -8,7 +8,7 @@ provider "azurerm" {
 
 #define variable 
 variable "prefix" {
-  default = "1-azure-demo"
+  default = "2-azure-demo"
 }
 # Create a resource group if it doesn’t exist
 resource "azurerm_resource_group" "main" {
@@ -31,6 +31,7 @@ resource "azurerm_subnet" "main" {
     resource_group_name  = "${azurerm_resource_group.main.name}"
     virtual_network_name = "${azurerm_virtual_network.main.name}"
     address_prefix       = "10.0.2.0/24"
+    network_security_group_id = "${azurerm_network_security_group.main.id}"
 }
 
 # Create public IPs
@@ -65,7 +66,7 @@ resource "azurerm_network_interface" "main" {
     name                      = "${var.prefix}-nic"
     location                  = "${azurerm_resource_group.main.location}"
     resource_group_name       = "${azurerm_resource_group.main.name}"
-    network_security_group_id = "${azurerm_network_security_group.main.id}"
+    
 
     ip_configuration {
         name                          = "${var.prefix}-myNicConfiguration"
