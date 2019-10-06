@@ -13,7 +13,7 @@ variable "prefix" {
 # Create a resource group if it doesn’t exist
 resource "azurerm_resource_group" "main" {
   name     = "AzureDemoOct19"
-  location = "West US 2"
+  location = "centralus"
 }
 
 # Create virtual network
