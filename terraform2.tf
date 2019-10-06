@@ -8,7 +8,7 @@ provider "azurerm" {
 
 #define variable 
 variable "prefix" {
-  default = "3-azure-demo"
+  default = "4-azure-demo"
 }
 # Create a resource group if it doesn’t exist
 resource "azurerm_resource_group" "main" {
