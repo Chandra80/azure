@@ -6,53 +6,46 @@ provider "azurerm" {
     tenant_id       = "1d291091-f13d-4fcc-8681-472dc0f589b4"
 }
 
+#define variable 
+variable "prefix" {
+  default = "1-azure-demo"
+}
 # Create a resource group if it doesn’t exist
-resource "azurerm_resource_group" "myterraformgroup" {
-    name     = "rsg2"
-    location = "centralus"
-
-    tags = {
-        environment = "Terraform Demo"
-    }
+resource "azurerm_resource_group" "main" {
+  name     = "${var.prefix}-resources"
+  location = "West US 2"
 }
 
 # Create virtual network
-resource "azurerm_virtual_network" "myterraformnetwork" {
-    name                = "Vnet2"
+resource "azurerm_virtual_network" "main" {
+    name                = "${var.prefix}-vNet"
     address_space       = ["10.0.0.0/16"]
-    location            = "centralus"
-    resource_group_name = "${azurerm_resource_group.myterraformgroup.name}"
+    location            = "${azurerm_resource_group.main.location}"
+    resource_group_name = "${azurerm_resource_group.main.name}"
 
-    tags = {
-        environment = "Terraform Demo"
-    }
-}
+ }
 
 # Create subnet
-resource "azurerm_subnet" "myterraformsubnet" {
-    name                 = "Subnet2"
-    resource_group_name  = "${azurerm_resource_group.myterraformgroup.name}"
-    virtual_network_name = "${azurerm_virtual_network.myterraformnetwork.name}"
+resource "azurerm_subnet" "main" {
+    name                 = "${var.prefix}-Subnet"
+    resource_group_name  = "${azurerm_resource_group.main.name}"
+    virtual_network_name = "${azurerm_virtual_network.main.name}"
     address_prefix       = "10.0.2.0/24"
 }
 
 # Create public IPs
-resource "azurerm_public_ip" "myterraformpublicip" {
-    name                         = "myPublicIP"
-    location                     = "centralus"
-    resource_group_name          = "${azurerm_resource_group.myterraformgroup.name}"
+resource "azurerm_public_ip" "main" {
+    name                         = "${var.prefix}-myPublicIP"
+    location                     = "${azurerm_resource_group.main.location}"
+    resource_group_name          = "${azurerm_resource_group.main.name}"
     allocation_method            = "Dynamic"
-
-    tags = {
-        environment = "Terraform Demo"
-    }
 }
 
 # Create Network Security Group and rule
-resource "azurerm_network_security_group" "myterraformnsg" {
-    name                = "nsg2"
-    location            = "centralus"
-    resource_group_name = "${azurerm_resource_group.myterraformgroup.name}"
+resource "azurerm_network_security_group" "main" {
+    name                = "${var.prefix}-nsg"
+    location            = "${azurerm_resource_group.main.location}"
+    resource_group_name =  "${azurerm_resource_group.main.name}"
 
     security_rule {
         name                       = "SSH"
@@ -65,41 +58,33 @@ resource "azurerm_network_security_group" "myterraformnsg" {
         source_address_prefix      = "*"
         destination_address_prefix = "*"
     }
-
-    tags = {
-        environment = "Terraform Demo"
-    }
 }
 
 # Create network interface
-resource "azurerm_network_interface" "myterraformnic" {
-    name                      = "NIC2"
-    location                  = "centralus"
-    resource_group_name       = "${azurerm_resource_group.myterraformgroup.name}"
-    network_security_group_id = "${azurerm_network_security_group.myterraformnsg.id}"
+resource "azurerm_network_interface" "main" {
+    name                      = "${var.prefix}-nic"
+    location                  = "${azurerm_resource_group.main.location}"
+    resource_group_name       = "${azurerm_resource_group.main.name}"
+    network_security_group_id = "${azurerm_network_security_group.main.id}"
 
     ip_configuration {
-        name                          = "myNicConfiguration"
-        subnet_id                     = "${azurerm_subnet.myterraformsubnet.id}"
+        name                          = "${var.prefix}-myNicConfiguration"
+        subnet_id                     = "${azurerm_subnet.main.id}"
         private_ip_address_allocation = "Dynamic"
-        public_ip_address_id          = "${azurerm_public_ip.myterraformpublicip.id}"
-    }
-
-    tags = {
-        environment = "Terraform Demo"
+        public_ip_address_id          = "${azurerm_public_ip.main.id}"
     }
 }
 
 # Create virtual machine
-resource "azurerm_virtual_machine" "myterraformvm" {
-    name                  = "myVM"
-    location              = "centralus"
-    resource_group_name   = "${azurerm_resource_group.myterraformgroup.name}"
-    network_interface_ids = ["${azurerm_network_interface.myterraformnic.id}"]
+resource "azurerm_virtual_machine" "main" {
+    name                  = "${var.prefix}-VM"
+    location              = "${azurerm_resource_group.main.location}"
+    resource_group_name   = "${azurerm_resource_group.main.name}"
+    network_interface_ids = ["${azurerm_network_interface.main.id}"]
     vm_size               = "Standard_DS1_v2"
 
     storage_os_disk {
-        name              = "myOsDisk"
+        name              = "${var.prefix}-myOsDisk"
         caching           = "ReadWrite"
         create_option     = "FromImage"
         managed_disk_type = "Premium_LRS"
@@ -114,8 +99,8 @@ resource "azurerm_virtual_machine" "myterraformvm" {
 
     os_profile {
     computer_name  = "hostname"
-    admin_username = "testadmin"
-    admin_password = "Express01@1234"
+    admin_username = "${var.prefix}admin"
+    admin_password = "${var.prefix}-pass"
   }
   os_profile_linux_config {
     disable_password_authentication = false
