@@ -8,11 +8,11 @@ provider "azurerm" {
 
 #define variable 
 variable "prefix" {
-  default = "2-azure-demo"
+  default = "3-azure-demo"
 }
 # Create a resource group if it doesn’t exist
 resource "azurerm_resource_group" "main" {
-  name     = "${var.prefix}-resources"
+  name     = "Resource-Group-1"
   location = "West US 2"
 }
 
@@ -31,7 +31,7 @@ resource "azurerm_subnet" "main" {
     resource_group_name  = "${azurerm_resource_group.main.name}"
     virtual_network_name = "${azurerm_virtual_network.main.name}"
     address_prefix       = "10.0.2.0/24"
-    network_security_group_id = "${azurerm_network_security_group.main.id}"
+    azurerm_subnet_network_security_group_association = "${azurerm_network_security_group.main.id}"
 }
 
 # Create public IPs
